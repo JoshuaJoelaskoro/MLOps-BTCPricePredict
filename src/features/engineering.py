@@ -4,8 +4,6 @@ the binary classification target (price direction: 1=up, 0=down).
 """
 
 import pandas as pd
-import numpy as np
-
 
 def compute_returns(df: pd.DataFrame, windows: list = [1, 3, 7, 14]) -> pd.DataFrame:
     """Calculate rolling daily returns for given lookback windows."""

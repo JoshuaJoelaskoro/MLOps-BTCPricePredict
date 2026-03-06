@@ -4,25 +4,32 @@ to trigger retraining in the Continuous Training pipeline.
 """
 
 import pandas as pd
-import numpy as np
 from scipy import stats
 
 
-def check_performance_drop(current_f1: float, baseline_f1: float,
-                            threshold_pct: float = 0.05) -> bool:
+def check_performance_drop(
+    current_f1: float,
+    baseline_f1: float,
+    threshold_pct: float = 0.05
+) -> bool:
     """
     Return True if F1 score dropped by more than threshold_pct relative
     to the baseline (e.g. previous evaluation window).
     """
     drop = (baseline_f1 - current_f1) / (baseline_f1 + 1e-9)
     triggered = drop > threshold_pct
-    print(f"[monitor] F1 baseline={baseline_f1:.4f} current={current_f1:.4f} "
-          f"drop={drop*100:.2f}% trigger={triggered}")
+    print(
+        f"[monitor] F1 baseline={baseline_f1:.4f} current={current_f1:.4f} "
+        f"drop={drop*100:.2f}% trigger={triggered}"
+    )
     return triggered
 
 
-def check_volatility_spike(df: pd.DataFrame, window: int = 7,
-                            multiplier: float = 2.0) -> bool:
+def check_volatility_spike(
+    df: pd.DataFrame,
+    window: int = 7,
+    multiplier: float = 2.0
+) -> bool:
     """
     Return True if the latest rolling volatility exceeds multiplier times
     the long-term average volatility.
@@ -31,32 +38,42 @@ def check_volatility_spike(df: pd.DataFrame, window: int = 7,
     recent_vol = daily_return.rolling(window).std().iloc[-1]
     long_term_vol = daily_return.std()
     triggered = recent_vol > multiplier * long_term_vol
-    print(f"[monitor] Volatility recent={recent_vol:.6f} "
-          f"long_term={long_term_vol:.6f} "
-          f"ratio={recent_vol/long_term_vol:.2f}x trigger={triggered}")
+    print(
+        f"[monitor] Volatility recent={recent_vol:.6f} "
+        f"long_term={long_term_vol:.6f} "
+        f"ratio={recent_vol/long_term_vol:.2f}x trigger={triggered}"
+    )
     return triggered
 
 
-def check_feature_drift(reference: pd.Series, current: pd.Series,
-                         feature_name: str = "feature",
-                         p_threshold: float = 0.05) -> bool:
+def check_feature_drift(
+    reference: pd.Series,
+    current: pd.Series,
+    feature_name: str = "feature",
+    p_threshold: float = 0.05
+) -> bool:
     """
     Kolmogorov-Smirnov test to detect distribution shift between a
     reference window and the current window for a given feature.
     """
     stat, p_value = stats.ks_2samp(reference.dropna(), current.dropna())
     triggered = p_value < p_threshold
-    print(f"[monitor] KS test '{feature_name}': stat={stat:.4f} "
-          f"p={p_value:.4f} trigger={triggered}")
+    print(
+        f"[monitor] KS test '{feature_name}': stat={stat:.4f} "
+        f"p={p_value:.4f} trigger={triggered}"
+    )
     return triggered
 
 
-def should_retrain(current_f1: float, baseline_f1: float,
-                   df: pd.DataFrame,
-                   reference_window: int = 90,
-                   f1_threshold_pct: float = 0.05,
-                   volatility_multiplier: float = 2.0,
-                   f1_floor: float = 0.60) -> bool:
+def should_retrain(
+    current_f1: float,
+    baseline_f1: float,
+    df: pd.DataFrame,
+    reference_window: int = 90,
+    f1_threshold_pct: float = 0.05,
+    volatility_multiplier: float = 2.0,
+    f1_floor: float = 0.60
+) -> bool:
     """
     Aggregate trigger: returns True if any retraining condition is met.
 
@@ -70,8 +87,7 @@ def should_retrain(current_f1: float, baseline_f1: float,
 
     # Condition 1 — absolute F1 floor
     if current_f1 < f1_floor:
-        print(f"[monitor] F1 {current_f1:.4f} below floor "
-              f"{f1_floor} → RETRAIN")
+        print(f"[monitor] F1 {current_f1:.4f} below floor {f1_floor} → RETRAIN")
         triggers.append("f1_floor")
 
     # Condition 2 — relative performance drop
