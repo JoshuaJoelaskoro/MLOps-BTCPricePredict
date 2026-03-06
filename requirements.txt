@@ -1,0 +1,35 @@
+# Core data processing
+pandas==2.2.2
+numpy==1.26.4
+
+# Machine Learning
+scikit-learn==1.4.2
+joblib==1.4.2
+
+# Data acquisition
+requests==2.31.0
+
+# Experiment tracking
+mlflow==2.13.0
+
+# Visualization
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Jupyter
+notebook==7.2.0
+ipykernel==6.29.4
+
+# Data validation & drift detection
+scipy==1.13.0
+evidently==0.4.30
+
+# Code quality
+black==24.4.2
+flake8==7.0.0
+pytest==8.2.0
+
+# Utilities
+python-dotenv==1.0.1
+pyyaml==6.0.1
+tqdm==4.66.4
